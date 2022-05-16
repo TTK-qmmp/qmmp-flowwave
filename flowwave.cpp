@@ -1,13 +1,11 @@
+#include "flowwave.h"
+#include "inlines.h"
+
+#include <QMenu>
 #include <QTimer>
 #include <QPainter>
-#include <QMenu>
-#include <QPaintEvent>
 #include <math.h>
-#include <stdlib.h>
 #include <qmmp/qmmp.h>
-
-#include "inlines.h"
-#include "flowwave.h"
 
 FlowWave::FlowWave(QWidget *parent)
     : Visual(parent)
@@ -31,9 +29,9 @@ FlowWave::~FlowWave()
         delete[] m_intern_vis_data;
     }
 
-    if(m_x_scale)
+    if(m_xscale)
     {
-        delete[] m_x_scale;
+        delete[] m_xscale;
     }
 }
 
@@ -75,11 +73,29 @@ void FlowWave::showEvent(QShowEvent *)
     m_timer->start();
 }
 
-void FlowWave::paintEvent(QPaintEvent *e)
+void FlowWave::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.fillRect(e->rect(), Qt::black);
-    draw(&painter);
+    painter.fillRect(rect(), Qt::black);
+    painter.setRenderHints(QPainter::Antialiasing);
+
+    QLinearGradient line(0, 0, width(), 0);
+    line.setColorAt(1.0 * 1 / 7, QColor(72, 176, 211));
+    line.setColorAt(1.0 * 2 / 7, QColor(57, 255, 57));
+    line.setColorAt(1.0 * 4 / 7, QColor(255, 247, 22));
+    line.setColorAt(1.0 * 5 / 7, QColor(255, 64, 59));
+    line.setColorAt(1.0 * 7 / 7, QColor(255, 64, 59));
+
+    for(int i = 0; i < m_cols; ++i)
+    {
+        const int x = i * m_cellSize.width() + 1;
+        for(int j = 0; j <= m_intern_vis_data[i] / 2; ++j)
+        {
+            painter.fillRect(x, height() / 2 - j * m_cellSize.height() + 1, m_cellSize.width() - 2, m_cellSize.height() - 2, line);
+            painter.fillRect(x, height() / 2 + j * m_cellSize.height() + 1, m_cellSize.width() - 2, m_cellSize.height() - 2, line);
+        }
+    }
+    painter.fillRect(0, height() / 2, width(), height() / 2, QColor(0, 0, 0, 188));
 }
 
 void FlowWave::contextMenuEvent(QContextMenuEvent *)
@@ -91,8 +107,8 @@ void FlowWave::contextMenuEvent(QContextMenuEvent *)
 
 void FlowWave::process(float *left, float *)
 {
-    const int rows = (height() - 2) / m_cell_size.height();
-    const int cols = (width() - 2) / m_cell_size.width();
+    const int rows = (height() - 2) / m_cellSize.height();
+    const int cols = (width() - 2) / m_cellSize.width();
 
     if(m_rows != rows || m_cols != cols)
     {
@@ -104,17 +120,17 @@ void FlowWave::process(float *left, float *)
             delete[] m_intern_vis_data;
         }
 
-        if(m_x_scale)
+        if(m_xscale)
         {
-            delete[] m_x_scale;
+            delete[] m_xscale;
         }
 
         m_intern_vis_data = new int[m_cols]{0};
-        m_x_scale = new int[m_cols + 1]{0};
+        m_xscale = new int[m_cols + 1]{0};
 
         for(int i = 0; i < m_cols + 1; ++i)
         {
-            m_x_scale[i] = pow(pow(255.0, 1.0 / m_cols), i);
+            m_xscale[i] = pow(pow(255.0, 1.0 / m_cols), i);
         }
     }
 
@@ -125,17 +141,17 @@ void FlowWave::process(float *left, float *)
     calc_freq(dest, left);
     const double y_scale = (double) 1.25 * m_rows / log(256);
 
-    for(int i = 0; i < m_cols; i++)
+    for(int i = 0; i < m_cols; ++i)
     {
         y = 0;
         magnitude = 0;
 
-        if(m_x_scale[i] == m_x_scale[i + 1])
+        if(m_xscale[i] == m_xscale[i + 1])
         {
             y = dest[i];
         }
 
-        for(k = m_x_scale[i]; k < m_x_scale[i + 1]; k++)
+        for(k = m_xscale[i]; k < m_xscale[i + 1]; ++k)
         {
             y = qMax(dest[k], y);
         }
@@ -148,30 +164,7 @@ void FlowWave::process(float *left, float *)
             magnitude = qBound(0, magnitude, m_rows);
         }
 
-        m_intern_vis_data[i] -= m_analyzer_falloff * m_rows / 15;
+        m_intern_vis_data[i] -= m_analyzerSize * m_rows / 15;
         m_intern_vis_data[i] = magnitude > m_intern_vis_data[i] ? magnitude : m_intern_vis_data[i];
     }
-}
-
-void FlowWave::draw(QPainter *p)
-{
-    QLinearGradient line(0, 0, width(), 0);
-    line.setColorAt(1.0 * 1 / 7, QColor(72, 176, 211));
-    line.setColorAt(1.0 * 2 / 7, QColor(57, 255, 57));
-    line.setColorAt(1.0 * 4 / 7, QColor(255, 247, 22));
-    line.setColorAt(1.0 * 5 / 7, QColor(255, 64, 59));
-    line.setColorAt(1.0 * 7 / 7, QColor(255, 64, 59));
-    p->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-
-    int x = 0;
-    for(int i = 0; i < m_cols; ++i)
-    {
-        x = i * m_cell_size.width() + 1;
-        for(int j = 0; j <= m_intern_vis_data[i] / 2; ++j)
-        {
-            p->fillRect(x, height() / 2 - j * m_cell_size.height() + 1, m_cell_size.width() - 2, m_cell_size.height() - 2, line);
-            p->fillRect(x, height() / 2 + j * m_cell_size.height() + 1, m_cell_size.width() - 2, m_cell_size.height() - 2, line);
-        }
-    }
-    p->fillRect(0, height() / 2, width(), height() / 2, QColor(0, 0, 0, 188));
 }

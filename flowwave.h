@@ -32,25 +32,24 @@ public:
     virtual ~FlowWave();
 
 public slots:
-    virtual void start() override;
-    virtual void stop() override;
+    virtual void start() override final;
+    virtual void stop() override final;
 
 private slots:
     void updateVisual();
     void setFullScreen(bool yes);
 
 private:
-    virtual void hideEvent(QHideEvent *e) override;
-    virtual void showEvent(QShowEvent *e) override;
-    virtual void paintEvent(QPaintEvent *e) override;
-    virtual void contextMenuEvent(QContextMenuEvent *e) override;
+    virtual void hideEvent(QHideEvent *e) override final;
+    virtual void showEvent(QShowEvent *e) override final;
+    virtual void paintEvent(QPaintEvent *e) override final;
+    virtual void contextMenuEvent(QContextMenuEvent *e) override final;
 
     void process(float *left, float *right);
-    void draw(QPainter *p);
 
-    int *m_x_scale = nullptr;
-    double m_analyzer_falloff = 2.2;
-    QSize m_cell_size = QSize(15, 6);
+    int *m_xscale = nullptr;
+    double m_analyzerSize = 2.2;
+    QSize m_cellSize = QSize(15, 6);
     QTimer *m_timer = nullptr;
     int m_rows = 0, m_cols = 0;
     int *m_intern_vis_data = nullptr;
