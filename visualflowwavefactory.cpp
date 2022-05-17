@@ -25,10 +25,10 @@ QDialog *VisualFlowWaveFactory::createConfigDialog(QWidget *parent)
 
 void VisualFlowWaveFactory::showAbout(QWidget *parent)
 {
-    QMessageBox::about (parent, tr("About FlowWave Visual Plugin"),
-                        tr("Qmmp FlowWave Visual Plugin")+"\n"+
-                        tr("This plugin adds FlowWave visualization")+"\n"+
-                        tr("Written by: Greedysky <greedysky@163.com>"));
+    QMessageBox::about(parent, tr("About FlowWave Visual Plugin"),
+                       tr("Qmmp FlowWave Visual Plugin") + "\n" +
+                       tr("This plugin adds FlowWave visualization") + "\n" +
+                       tr("Written by: Greedysky <greedysky@163.com>"));
 }
 
 QString VisualFlowWaveFactory::translation() const
