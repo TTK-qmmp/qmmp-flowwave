@@ -38,7 +38,9 @@ FlowWave::~FlowWave()
 void FlowWave::start()
 {
     if(isVisible())
+    {
         m_timer->start();
+    }
 }
 
 void FlowWave::stop()
@@ -58,9 +60,13 @@ void FlowWave::updateVisual()
 void FlowWave::setFullScreen(bool yes)
 {
     if(yes)
+    {
         setWindowState(windowState() | Qt::WindowFullScreen);
+    }
     else
+    {
         setWindowState(windowState() & ~Qt::WindowFullScreen);
+    }
 }
 
 void FlowWave::hideEvent(QHideEvent *)
