@@ -24,15 +24,8 @@ FlowWave::FlowWave(QWidget *parent)
 
 FlowWave::~FlowWave()
 {
-    if(m_intern_vis_data)
-    {
-        delete[] m_intern_vis_data;
-    }
-
-    if(m_xscale)
-    {
-        delete[] m_xscale;
-    }
+    delete[] m_visualData;
+    delete[] m_xscale;
 }
 
 void FlowWave::start()
@@ -95,7 +88,7 @@ void FlowWave::paintEvent(QPaintEvent *)
     for(int i = 0; i < m_cols; ++i)
     {
         const int x = i * m_cellSize.width() + 1;
-        for(int j = 0; j <= m_intern_vis_data[i] / 2; ++j)
+        for(int j = 0; j <= m_visualData[i] / 2; ++j)
         {
             painter.fillRect(x, height() / 2 - j * m_cellSize.height() + 1, m_cellSize.width() - 2, m_cellSize.height() - 2, line);
             painter.fillRect(x, height() / 2 + j * m_cellSize.height() + 1, m_cellSize.width() - 2, m_cellSize.height() - 2, line);
@@ -121,17 +114,10 @@ void FlowWave::process(float *left, float *)
         m_rows = rows;
         m_cols = cols;
 
-        if(m_intern_vis_data)
-        {
-            delete[] m_intern_vis_data;
-        }
+        delete[] m_visualData;
+        delete[] m_xscale;
 
-        if(m_xscale)
-        {
-            delete[] m_xscale;
-        }
-
-        m_intern_vis_data = new int[m_cols]{0};
+        m_visualData = new int[m_cols]{0};
         m_xscale = new int[m_cols + 1]{0};
 
         for(int i = 0; i < m_cols + 1; ++i)
@@ -141,23 +127,21 @@ void FlowWave::process(float *left, float *)
     }
 
     short dest[256];
-    short y;
-    int k, magnitude;
-
     calc_freq(dest, left);
-    const double y_scale = (double) 1.25 * m_rows / log(256);
+
+    const double yscale = (double)1.25 * m_rows / log(256);
 
     for(int i = 0; i < m_cols; ++i)
     {
-        y = 0;
-        magnitude = 0;
+        short y = 0;
+        int magnitude = 0;
 
         if(m_xscale[i] == m_xscale[i + 1])
         {
             y = dest[i];
         }
 
-        for(k = m_xscale[i]; k < m_xscale[i + 1]; ++k)
+        for(int k = m_xscale[i]; k < m_xscale[i + 1]; ++k)
         {
             y = qMax(dest[k], y);
         }
@@ -166,11 +150,11 @@ void FlowWave::process(float *left, float *)
 
         if(y)
         {
-            magnitude = int(log(y) * y_scale);
+            magnitude = int(log(y) * yscale);
             magnitude = qBound(0, magnitude, m_rows);
         }
 
-        m_intern_vis_data[i] -= m_analyzerSize * m_rows / 15;
-        m_intern_vis_data[i] = magnitude > m_intern_vis_data[i] ? magnitude : m_intern_vis_data[i];
+        m_visualData[i] -= m_analyzerSize * m_rows / 15;
+        m_visualData[i] = magnitude > m_visualData[i] ? magnitude : m_visualData[i];
     }
 }
