@@ -123,12 +123,9 @@ void FlowWave::process(float *left, float *)
         for(int i = 0; i < m_cols + 1; ++i)
         {
             m_xscale[i] = pow(255.0, float(i) / m_cols);
-            if(i > 0)
+            if(i > 0 && m_xscale[i - 1] >= m_xscale[i]) //avoid several bars in a row with the same frequency
             {
-                if(m_xscale[i - 1] >= m_xscale[i]) //avoid several bars in a row with the same frequency
-                {
-                    m_xscale[i] = qMin(m_xscale[i - 1] + 1, m_cols);
-                }
+                m_xscale[i] = qMin(m_xscale[i - 1] + 1, m_cols);
             }
         }
     }
