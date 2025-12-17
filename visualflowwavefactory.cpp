@@ -31,7 +31,6 @@ void VisualFlowWaveFactory::showAbout(QWidget *parent)
 {
     QMessageBox::about(parent, tr("About FlowWave Visual Plugin"),
                        tr("Qmmp FlowWave Visual Plugin") + "\n" +
-                       tr("This plugin adds FlowWave visualization") + "\n" +
                        tr("Written by: Greedysky <greedysky@163.com>"));
 }
 
