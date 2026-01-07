@@ -76,8 +76,8 @@ void FlowWave::showEvent(QShowEvent *)
 void FlowWave::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.fillRect(rect(), Qt::black);
     painter.setRenderHints(QPainter::Antialiasing);
+    painter.fillRect(rect(), Qt::black);
 
     QLinearGradient line(0, 0, width(), 0);
     line.setColorAt(1.0 * 1 / 7, QColor(72, 176, 211));
