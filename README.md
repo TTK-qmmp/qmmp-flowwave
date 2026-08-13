@@ -1,4 +1,4 @@
-This is a plugin for Qmmp (1.6.0 or greater) visual.
+This is a visualization plugin for Qmmp (1.6.0 or later).
 
 ![Image](https://github.com/TTK-qmmp/qmmp-flowwave/blob/master/image/1.png?raw=true)
 
